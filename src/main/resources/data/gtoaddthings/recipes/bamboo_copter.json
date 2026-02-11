@@ -1,0 +1,39 @@
+{
+  "type": "ars_nouveau:enchanting_apparatus",
+  "keepNbtOfReagent": false,
+  "output": {
+    "item": "gtoaddthings:bamboo_copter"
+  },
+  "pedestalItems": [
+    {
+      "item": "ars_nouveau:air_essence"
+    },
+    {
+      "item": "ars_nouveau:air_essence"
+    },
+    {
+      "item": "ars_nouveau:manipulation_essence"
+    },
+    {
+      "item": "ars_nouveau:manipulation_essence"
+    },
+    {
+      "item": "ars_nouveau:magebloom_fiber"
+    },
+    {
+      "item": "ars_nouveau:magebloom_fiber"
+    },
+    {
+      "item": "ars_nouveau:whirlisprig_shards"
+    },
+    {
+      "item": "ars_nouveau:whirlisprig_shards"
+    }
+  ],
+  "reagent": [
+    {
+      "item": "gtocore:mana_steel_wing"
+    }
+  ],
+  "sourceCost": 0
+}
