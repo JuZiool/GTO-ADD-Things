@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "gtoaddthings:item/bamboo_copter"
-  }
-}

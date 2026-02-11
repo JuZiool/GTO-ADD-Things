@@ -2,7 +2,7 @@
   "type": "ars_nouveau:enchanting_apparatus",
   "keepNbtOfReagent": false,
   "output": {
-    "item": "gtoaddthings:bamboo_copter"
+    "item": "gtoadd:bamboo_copter"
   },
   "pedestalItems": [
     {

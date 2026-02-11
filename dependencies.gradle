@@ -1,0 +1,34 @@
+dependencies {
+    compileOnly libs.jetbrains.annotations
+
+    compileOnly("org.lwjgl:lwjgl:3.3.2")
+    compileOnly("org.lwjgl:lwjgl-opengl:3.3.2")
+
+    compileOnly('org.projectlombok:lombok:1.18.42')
+    annotationProcessor('org.projectlombok:lombok:1.18.42')
+
+    api(annotationProcessor("io.github.llamalad7:mixinextras-common:$project.mixinextras_version"))
+    annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
+
+    compileOnly(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-common:0.3.2-beta.4"))
+    implementation("com.github.bawnorton.mixinsquared:mixinsquared-neoforge:0.3.2-beta.4")
+
+    modImplementation("dev:Registrate:$project.registrate_version")
+    modImplementation("curse.maven:ldlib-626676:7412415")
+    modImplementation("curse.maven:configuration-444699:5840405")
+    modRuntimeOnly("curse.maven:cloth-config-348521:5729105")
+    modImplementation("dev:fastcollection:1.0")
+    modImplementation("dev:RecipeSearch-1.2")
+
+    modImplementation("top.theillusivec4.curios:curios-forge:${project.curiosVersion}+${project.minecraft_version}")
+
+    modImplementation("dev:gtceu-$project.minecraft_version:$project.gtceu_version")
+    modImplementation("dev:gtmthings:1.5.5-GTO-Port")
+
+    modImplementation("appeng:appliedenergistics2-forge:${project.ae2_version}")
+    modImplementation("org.appliedenergistics:guideme:20.1.13")
+    modImplementation("curse.maven:ex-pattern-provider-892005:7594207")
+    modImplementation("curse.maven:glodium-957920:5006780")
+
+    modCompileOnly("dev:gtocore:0.5.4")
+}

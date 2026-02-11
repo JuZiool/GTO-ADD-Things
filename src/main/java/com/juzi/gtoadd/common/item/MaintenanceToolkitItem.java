@@ -1,6 +1,7 @@
-package com.gtoaddthings.item;
+package com.juzi.gtoadd.common.item;
 
-import com.gtoaddthings.GTOAddThings;
+import com.juzi.gtoadd.GTOAddition;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -29,6 +30,7 @@ public class MaintenanceToolkitItem extends Item {
     private static final int REPAIR_DAMAGE = 1;
 
     public static final Map<String, String> TOOL_NAMES = new HashMap<>();
+
     static {
         TOOL_NAMES.put("wrench", "扳手");
         TOOL_NAMES.put("screwdriver", "螺丝刀");
@@ -37,17 +39,17 @@ public class MaintenanceToolkitItem extends Item {
         TOOL_NAMES.put("crowbar", "撬棍");
     }
 
-    public MaintenanceToolkitItem() {
-        super(new Item.Properties().stacksTo(1));
+    public MaintenanceToolkitItem(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        
+
         if (!level.isClientSide) {
             player.sendSystemMessage(Component.literal("工具装载功能开发中...")
-                .withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
+                    .withStyle(Style.EMPTY.withColor(ChatFormatting.YELLOW)));
         }
 
         return InteractionResultHolder.success(stack);
@@ -79,21 +81,21 @@ public class MaintenanceToolkitItem extends Item {
     private boolean isMaintenanceHatch(BlockEntity blockEntity) {
         String className = blockEntity.getClass().getName();
         return className.toLowerCase().contains("maintenance") ||
-               className.toLowerCase().contains("maintenhatch");
+                className.toLowerCase().contains("maintenhatch");
     }
 
     private InteractionResult tryRepairMaintenanceHatch(ServerPlayer player, ItemStack toolkit, BlockEntity blockEntity) {
         Map<String, Boolean> problems = getMaintenanceProblems(blockEntity);
-        
+
         if (problems == null || problems.isEmpty()) {
             player.sendSystemMessage(Component.literal("维护仓状态良好，不需要修复")
-                .withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN)));
+                    .withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN)));
             return InteractionResult.PASS;
         }
 
         boolean repaired = false;
         StringBuilder consumedTools = new StringBuilder();
-        
+
         for (Map.Entry<String, Boolean> entry : problems.entrySet()) {
             if (entry.getValue()) {
                 String toolType = entry.getKey();
@@ -112,22 +114,22 @@ public class MaintenanceToolkitItem extends Item {
 
         if (repaired) {
             player.sendSystemMessage(Component.literal("维护仓修复成功！消耗了: " + consumedTools)
-                .withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN)));
+                    .withStyle(Style.EMPTY.withColor(ChatFormatting.GREEN)));
             return InteractionResult.SUCCESS;
         } else {
             player.sendSystemMessage(Component.literal("工具箱中缺少必要的工具或工具耐久不足")
-                .withStyle(Style.EMPTY.withColor(ChatFormatting.RED)));
+                    .withStyle(Style.EMPTY.withColor(ChatFormatting.RED)));
             return InteractionResult.FAIL;
         }
     }
 
     private Map<String, Boolean> getMaintenanceProblems(BlockEntity blockEntity) {
         Map<String, Boolean> problems = new HashMap<>();
-        
+
         try {
             Class<?> clazz = blockEntity.getClass();
             java.lang.reflect.Field problemsField = null;
-            
+
             try {
                 problemsField = clazz.getDeclaredField("maintenanceProblems");
             } catch (NoSuchFieldException e) {
@@ -137,8 +139,8 @@ public class MaintenanceToolkitItem extends Item {
                     // 尝试其他可能的字段名
                     java.lang.reflect.Field[] fields = clazz.getDeclaredFields();
                     for (java.lang.reflect.Field field : fields) {
-                        if (field.getName().toLowerCase().contains("maintenance") || 
-                            field.getName().toLowerCase().contains("problem")) {
+                        if (field.getName().toLowerCase().contains("maintenance") ||
+                                field.getName().toLowerCase().contains("problem")) {
                             problemsField = field;
                             break;
                         }
@@ -149,14 +151,14 @@ public class MaintenanceToolkitItem extends Item {
             if (problemsField != null) {
                 problemsField.setAccessible(true);
                 Object value = problemsField.get(blockEntity);
-                
+
                 byte problemsValue = 0;
                 if (value instanceof Byte) {
                     problemsValue = (Byte) value;
                 } else if (value instanceof Integer) {
                     problemsValue = ((Integer) value).byteValue();
                 }
-                
+
                 // GTCEu维护问题位定义
                 problems.put("screwdriver", (problemsValue & 0x01) != 0);
                 problems.put("wrench", (problemsValue & 0x02) != 0);
@@ -165,22 +167,22 @@ public class MaintenanceToolkitItem extends Item {
                 problems.put("soft_hammer", (problemsValue & 0x10) != 0);
             }
         } catch (Exception e) {
-            GTOAddThings.LOGGER.error("获取维护问题时出错: " + e.getMessage());
+            GTOAddition.LOGGER.error("获取维护问题时出错: " + e.getMessage());
         }
-        
+
         return problems;
     }
 
     private void fixMaintenanceProblem(BlockEntity blockEntity, String toolType) {
         try {
             Class<?> clazz = blockEntity.getClass();
-            
+
             // 尝试调用修复方法
             java.lang.reflect.Method[] methods = clazz.getMethods();
             for (java.lang.reflect.Method method : methods) {
                 String methodName = method.getName().toLowerCase();
-                if ((methodName.contains("fix") || methodName.contains("repair")) && 
-                    methodName.contains("maintenance")) {
+                if ((methodName.contains("fix") || methodName.contains("repair")) &&
+                        methodName.contains("maintenance")) {
                     try {
                         if (method.getParameterCount() == 0) {
                             method.invoke(blockEntity);
@@ -199,8 +201,8 @@ public class MaintenanceToolkitItem extends Item {
             } catch (NoSuchFieldException e) {
                 java.lang.reflect.Field[] fields = clazz.getDeclaredFields();
                 for (java.lang.reflect.Field field : fields) {
-                    if (field.getName().toLowerCase().contains("maintenance") || 
-                        field.getName().toLowerCase().contains("problem")) {
+                    if (field.getName().toLowerCase().contains("maintenance") ||
+                            field.getName().toLowerCase().contains("problem")) {
                         problemsField = field;
                         break;
                     }
@@ -216,7 +218,7 @@ public class MaintenanceToolkitItem extends Item {
                 } else if (value instanceof Integer) {
                     currentProblems = ((Integer) value).byteValue();
                 }
-                
+
                 byte mask = switch (toolType) {
                     case "screwdriver" -> ~0x01;
                     case "wrench" -> ~0x02;
@@ -225,7 +227,7 @@ public class MaintenanceToolkitItem extends Item {
                     case "soft_hammer" -> ~0x10;
                     default -> (byte) 0xFF;
                 };
-                
+
                 byte newValue = (byte) (currentProblems & mask);
                 if (value instanceof Byte) {
                     problemsField.setByte(blockEntity, newValue);
@@ -233,9 +235,9 @@ public class MaintenanceToolkitItem extends Item {
                     problemsField.setInt(blockEntity, newValue);
                 }
             }
-            
+
         } catch (Exception e) {
-            GTOAddThings.LOGGER.error("修复维护问题时出错: " + e.getMessage());
+            GTOAddition.LOGGER.error("修复维护问题时出错: " + e.getMessage());
         }
     }
 
@@ -266,15 +268,15 @@ public class MaintenanceToolkitItem extends Item {
             CompoundTag toolTag = toolsList.getCompound(i);
             if (toolTag.getString("ToolType").equals(toolType)) {
                 ItemStack toolStack = ItemStack.of(toolTag.getCompound("ToolItem"));
-                
+
                 if (toolStack.isDamageableItem()) {
                     int maxDamage = toolStack.getMaxDamage();
                     int currentDamage = toolStack.getDamageValue();
-                    
+
                     if (maxDamage - currentDamage <= REPAIR_DAMAGE) {
                         return false;
                     }
-                    
+
                     toolStack.setDamageValue(currentDamage + REPAIR_DAMAGE);
                     toolTag.put("ToolItem", toolStack.save(new CompoundTag()));
                     toolsList.set(i, toolTag);
@@ -288,7 +290,7 @@ public class MaintenanceToolkitItem extends Item {
     }
 
     public static boolean addTool(ItemStack toolkit, ItemStack tool, String toolType) {
-        if (!toolkit.is(GTOAddThings.MAINTENANCE_TOOLKIT.get())) {
+        if (!(toolkit.getItem() instanceof MaintenanceToolkitItem)) {
             return false;
         }
 
@@ -319,8 +321,8 @@ public class MaintenanceToolkitItem extends Item {
 
     public static Map<String, ItemStack> getTools(ItemStack toolkit) {
         Map<String, ItemStack> tools = new HashMap<>();
-        
-        if (!toolkit.is(GTOAddThings.MAINTENANCE_TOOLKIT.get())) {
+
+        if (!(toolkit.getItem() instanceof MaintenanceToolkitItem)) {
             return tools;
         }
 
@@ -336,7 +338,7 @@ public class MaintenanceToolkitItem extends Item {
             ItemStack toolStack = ItemStack.of(toolTag.getCompound("ToolItem"));
             tools.put(toolType, toolStack);
         }
-        
+
         return tools;
     }
 
@@ -344,36 +346,36 @@ public class MaintenanceToolkitItem extends Item {
     public void appendHoverText(ItemStack stack, Level level, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
         tooltipComponents.add(Component.empty());
         tooltipComponents.add(Component.literal("功能:")
-            .withStyle(Style.EMPTY.withColor(ChatFormatting.GOLD).withBold(true)));
+                .withStyle(Style.EMPTY.withColor(ChatFormatting.GOLD).withBold(true)));
         tooltipComponents.add(Component.literal("- ")
-            .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY))
-            .append(Component.literal("右键打开工具箱界面（开发中）")
-                .withStyle(Style.EMPTY.withColor(ChatFormatting.AQUA))));
+                .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY))
+                .append(Component.literal("右键打开工具箱界面（开发中）")
+                        .withStyle(Style.EMPTY.withColor(ChatFormatting.AQUA))));
         tooltipComponents.add(Component.literal("- ")
-            .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY))
-            .append(Component.literal("对维护仓右键一键修复")
-                .withStyle(Style.EMPTY.withColor(ChatFormatting.AQUA))));
+                .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY))
+                .append(Component.literal("对维护仓右键一键修复")
+                        .withStyle(Style.EMPTY.withColor(ChatFormatting.AQUA))));
 
         tooltipComponents.add(Component.empty());
         tooltipComponents.add(Component.literal("已装载工具:")
-            .withStyle(Style.EMPTY.withColor(ChatFormatting.GOLD).withBold(true)));
+                .withStyle(Style.EMPTY.withColor(ChatFormatting.GOLD).withBold(true)));
 
         Map<String, ItemStack> tools = getTools(stack);
         if (tools.isEmpty()) {
             tooltipComponents.add(Component.literal("- 空")
-                .withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
+                    .withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
         } else {
             for (Map.Entry<String, ItemStack> entry : tools.entrySet()) {
                 String toolName = TOOL_NAMES.getOrDefault(entry.getKey(), entry.getKey());
                 ItemStack toolStack = entry.getValue();
                 int remaining = toolStack.getMaxDamage() - toolStack.getDamageValue();
                 int max = toolStack.getMaxDamage();
-                
+
                 tooltipComponents.add(Component.literal("- " + toolName + ": ")
-                    .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY))
-                    .append(Component.literal(remaining + "/" + max)
-                        .withStyle(Style.EMPTY.withColor(remaining > max * 0.5 ? ChatFormatting.GREEN :
-                            remaining > max * 0.2 ? ChatFormatting.YELLOW : ChatFormatting.RED))));
+                        .withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY))
+                        .append(Component.literal(remaining + "/" + max)
+                                .withStyle(Style.EMPTY.withColor(remaining > max * 0.5 ? ChatFormatting.GREEN :
+                                        remaining > max * 0.2 ? ChatFormatting.YELLOW : ChatFormatting.RED))));
             }
         }
 
