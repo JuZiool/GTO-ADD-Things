@@ -1,6 +1,9 @@
 package com.juzi.gtoadd;
 
+import com.juzi.gtoadd.addon.GTOAddAddon;
 import com.juzi.gtoadd.common.CommonProxy;
+
+import com.gregtechceu.gtceu.api.addon.AddonFinder;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.DistExecutor;
@@ -20,6 +23,7 @@ public class GTOAddition {
     }
 
     public GTOAddition() {
+        AddonFinder.add(new GTOAddAddon());
         DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
     }
 }
